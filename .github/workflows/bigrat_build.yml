@@ -24,21 +24,22 @@ jobs:
 
       - name: Inject BigRat Branding
         run: |
-          echo "Applying name and package modifications..."
-          sed -i 's/<string name="app_name">Termux<\/string>/<string name="app_name">BigRat Terminal<\/string>/g' app/src/main/res/values/strings.xml
+          echo "Deep patching all Termux references..."
+          find app/src/ -type f -name "strings.xml" -exec sed -i 's/>Termux</>BigRat Terminal</g' {} +
+          find app/src/ -type f -name "AndroidManifest.xml" -exec sed -i 's/android:label="Termux"/android:label="BigRat Terminal"/g' {} +
           sed -i 's/applicationId "com.termux"/applicationId "com.bigrat.terminal"/g' app/build.gradle
+          sed -i 's/applicationIdSuffix ".debug"//g' app/build.gradle
+          sed -i 's/com.termux.debug/com.bigrat.terminal/g' app/build.gradle
 
           if [ -f "icon.png" ]; then
-            echo "Cleaning up old XML launcher resources to prevent duplication..."
-            find app/src/main/res/ -name "ic_launcher*.xml" -delete
-            
-            for dir in app/src/main/res/mipmap-*; do
-              if [ -d "$dir" ]; then
-                cp icon.png "$dir/ic_launcher.png"
-                cp icon.png "$dir/ic_launcher_round.png"
-              fi
+            echo "Forcing icon replacement everywhere..."
+            find app/src/ -name "ic_launcher*.xml" -delete
+            find app/src/ -name "ic_launcher*.webp" -delete
+            for dir in $(find app/src/ -type d -name "mipmap-*"); do
+              cp icon.png "$dir/ic_launcher.png"
+              cp icon.png "$dir/ic_launcher_round.png"
             done
-            echo "Icons replaced successfully."
+            echo "All icons overwritten."
           fi
 
       - name: Build with Gradle
