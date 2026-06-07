@@ -29,6 +29,9 @@ jobs:
           sed -i 's/applicationId "com.termux"/applicationId "com.bigrat.terminal"/g' app/build.gradle
 
           if [ -f "icon.png" ]; then
+            echo "Cleaning up old XML launcher resources to prevent duplication..."
+            find app/src/main/res/ -name "ic_launcher*.xml" -delete
+            
             for dir in app/src/main/res/mipmap-*; do
               if [ -d "$dir" ]; then
                 cp icon.png "$dir/ic_launcher.png"
