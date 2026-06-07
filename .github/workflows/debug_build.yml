@@ -47,7 +47,8 @@ jobs:
       - name: Build with Gradle
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug -x test -x lint -x checkstyle
+          # Убран -x checkstyle, оставлены только базовые исключения тестов
+          ./gradlew assembleDebug -x test -x lint -PreleaseVersionName="1.0.0-bigrat"
 
       - name: Upload BigRat Terminal APK
         uses: actions/upload-artifact@v4
