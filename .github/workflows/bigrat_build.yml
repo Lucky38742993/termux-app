@@ -25,13 +25,9 @@ jobs:
       - name: Inject BigRat Branding
         run: |
           echo "Applying name and package modifications..."
-          # Меняем имя приложения
           sed -i 's/<string name="app_name">Termux<\/string>/<string name="app_name">BigRat Terminal<\/string>/g' app/src/main/res/values/strings.xml
-          
-          # Меняем ID пакета, чтобы не конфликтовать с оригиналом
           sed -i 's/applicationId "com.termux"/applicationId "com.bigrat.terminal"/g' app/build.gradle
 
-          # Подменяем иконки
           if [ -f "icon.png" ]; then
             for dir in app/src/main/res/mipmap-*; do
               if [ -d "$dir" ]; then
@@ -40,18 +36,9 @@ jobs:
               fi
             done
             echo "Icons replaced successfully."
-          else
-            echo "icon.png missing, using default icons."
           fi
 
       - name: Build with Gradle
         run: |
           chmod +x gradlew
-          # Убран -x checkstyle, оставлены только базовые исключения тестов
-          ./gradlew assembleDebug -x test -x lint -PreleaseVersionName="1.0.0-bigrat"
-
-      - name: Upload BigRat Terminal APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: BigRat-Terminal-APKs
-          path: app/build/outputs/apk/debug/*.apk
+          ./gradlew assembleDebug --no-daemon -x test -x lint
